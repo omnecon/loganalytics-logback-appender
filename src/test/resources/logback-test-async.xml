@@ -1,0 +1,20 @@
+<configuration debug="true">
+	<appender name="LoganalyticsTest" class="com.github.omnecon.LoganalyticsAppender">
+		<workspaceId>YourWorkspaceId</workspaceId>
+		<sharedKey>YourShardKey</sharedKey>
+		<logType>YourLogType</logType>
+		<apiVersion>YourApiVersion</apiVersion>
+	</appender>
+
+	<appender name="LoganalyticsTestAsync" class="ch.qos.logback.classic.AsyncAppender">
+		<appender-ref ref="LoganalyticsTest" />
+		<discardingThreshold>100</discardingThreshold>
+		<queueSize>1000</queueSize>
+		<maxFlushTime>3000</maxFlushTime>
+		<neverBlock>false</neverBlock>
+	</appender>
+
+	<root level="trace">
+		<appender-ref ref="LoganalyticsTestAsync" />
+	</root>
+</configuration>
