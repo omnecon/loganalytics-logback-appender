@@ -6,10 +6,7 @@ import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
-
-import com.github.omnecon.LoganalyticsAppender;
 
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.Logger;

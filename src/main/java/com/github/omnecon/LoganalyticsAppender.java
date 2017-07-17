@@ -107,9 +107,7 @@ public class LoganalyticsAppender extends AppenderBase<ILoggingEvent> {
 
 		DateFormat df = null;
 		if (utcTime) {
-			df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'"); // 'Z'
-																		// for
-																		// UTC
+			df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'"); 
 			df.setTimeZone(TimeZone.getTimeZone("UTC"));
 		} else {
 			df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
