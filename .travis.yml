@@ -3,8 +3,12 @@ sudo: false
 
 jdk:
   - oraclejdk8
-
-script: "mvn cobertura:cobertura"
-
+env:
+  global:
+    - SONATYPE_USERNAME=omnecon
+    - secure: "cvpOeu6GDYvhAlU8E7Sr+PzRLeFCgWKhgni3QX/AmC/OLLZFgG/akSsS1ACS6UE5hQXN/iDrKvEhKsnCsbAYm0tr4zTZvFaHZMYjvNg5kZ5vORW8vqyUU47mCrdQa3xcERWkh3wq7FuzyXQtZ27J0D+O+syWxjNzGLTYVnk6C7A10lwqsI9EwZxOYcMDjVm6tP3SyyYM0euQbDFKuOGCNrt0dOhXeB2rWuSZPxe2Hk5O94EcObBcOu3e8ckFiwt7ShNc2elIw2+hpDDip49q0gpc8PhRbOn1gMQ1DBLg94RBP3EQgGXXpnUEmYSfDhWJfd9V55t9lZvcguI7E+ssj2zGp8G7JrpjC9Ym7kGbkmaGpMyrjYc80rm+3bjFMgvoLb5pdhAUVL7nN0dHROx6waJZ8AN9OSOvCBG9KzB8ZjPmf6NzHYxqym1ilQjAfqQ0MsNkdI8kDf2VQ6X2YK7y93wphFmgUcG5k9WRR/0MT9jAOONIqW8Jl9d3Fitp36B/s9306Yhh2wlFloe6KuS+pQHGfZ1E1BGTwQ7fonbMa4CO2G8D0KLWpxkU+e+bxGRCkXcm7gTj7i3wKOCXA1V0yt7I6QY5iRrckKX7elyVyefr50S4QAetkN/cU4sePom+yMw613DPnDArpIcGhVCPDsxqzTFonR4Xd998TRtebw0="
 after_success:
+  # test coverage reporting
   - bash <(curl -s https://codecov.io/bash)
+  # deploy snapshots to Maven central, but only from master branch
+  - "[[ $TRAVIS_BRANCH == \"master\" && $UPLOAD_SONATYPE == \"1\" ]] && mvn --settings sonatype-settings.xml -DskipTests -B deploy"
