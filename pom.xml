@@ -102,7 +102,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>${javadoc.plugin.version}</version>
 			</plugin>
-			<plugin>
+<!-- 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>${maven-release.plugin.version}</version>
@@ -115,7 +115,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 			<plugin>
 			<!-- http://central.sonatype.org/pages/apache-maven.html -->
 				<groupId>org.sonatype.plugins</groupId>
