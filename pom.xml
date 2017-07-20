@@ -43,7 +43,8 @@
 		<maven-source.plugin.version>3.0.1</maven-source.plugin.version>
 		<maven-release.plugin.version>2.5.3</maven-release.plugin.version>
 		<javadoc.plugin.version>2.10.4</javadoc.plugin.version>
-		<maven-release.plugin.version>1.6</maven-release.plugin.version>
+		<maven-gpg.plugin.version>1.6</maven-gpg.plugin.version>
+		<maven-compiler.plugin.version>3.6.1</maven-compiler.plugin.version>
 	</properties>
 
 	<dependencies>
@@ -102,20 +103,6 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>${javadoc.plugin.version}</version>
 			</plugin>
-<!-- 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<version>${maven-release.plugin.version}</version>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin> -->
 			<plugin>
 			<!-- http://central.sonatype.org/pages/apache-maven.html -->
 				<groupId>org.sonatype.plugins</groupId>
@@ -131,7 +118,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
+				<version>${maven-compiler.plugin.version}</version>
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
@@ -163,4 +150,27 @@
 		</repository>
 	</distributionManagement>
 
+  <profiles>
+ <profile>
+      <id>sign-artifacts</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven-gpg.plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    </profiles>
 </project>
