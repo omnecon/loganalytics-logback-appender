@@ -43,7 +43,7 @@ public class LoganalyticsAppenderPerformanceTest {
 		return byteValue / 1024 / 1024;
 	}
 
-	@Test
+	//@Test
 	public void testLoadDefaultConfiguration() throws JoranException, IOException {
 
 		loadConfig("logback-test-async-perf.xml");
