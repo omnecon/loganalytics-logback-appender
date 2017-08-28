@@ -1,0 +1,23 @@
+<configuration debug="true">
+	<appender name="LoganalyticsTestPerf" class="com.github.omnecon.LoganalyticsAppender">
+		<workspaceId>b3967708-b5e0-431e-9ef4-91cfe4d35601</workspaceId>
+		<sharedKey>sJwvxXWR8A0VCvveZ+LdZd4UH7kmonTaoq1jKMhRtCjW9XxjzsMaVkW+1/I2dyFTb2nwrLQ64mSta/ieECy8Yg==
+		</sharedKey>
+		<logType>SVEAZURETEST_HM4</logType>
+		<fieldStatisticsPrintInterval>5000</fieldStatisticsPrintInterval>
+		<!-- <apiVersion>YourApiVersion</apiVersion> -->
+	</appender>
+
+	<!-- https://logback.qos.ch/manual/appenders.html -->
+	<appender name="LoganalyticsTestAsyncPerf" class="ch.qos.logback.classic.AsyncAppender">
+		<appender-ref ref="LoganalyticsTestPerf" />
+		<discardingThreshold>100</discardingThreshold>
+		<queueSize>10100</queueSize>
+		<maxFlushTime>3000</maxFlushTime>
+		<neverBlock>true</neverBlock>
+	</appender>
+
+	<root level="trace">
+		<appender-ref ref="LoganalyticsTestAsyncPerf" />
+	</root>
+</configuration>

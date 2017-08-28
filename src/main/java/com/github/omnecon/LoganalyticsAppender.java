@@ -23,6 +23,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 
 import com.google.gson.Gson;
@@ -35,6 +36,8 @@ public class LoganalyticsAppender extends AppenderBase<ILoggingEvent> {
 	private static final String HTTP_METHOD = "POST";
 	private static final String CONTENT_TYPE = "application/json";
 	private static final String RESOURCE = "/api/logs";
+	private static final int MAX_CONNECTIONS_TOTAL = 200;
+	private static final int MAX_CONNECTIONS_PER_ROUTE = 20;
 
 	// Mandatory values from logback config
 	private String workspaceId = null;
@@ -49,7 +52,63 @@ public class LoganalyticsAppender extends AppenderBase<ILoggingEvent> {
 	private boolean fieldLoggerName = false;
 	private boolean fieldThreadName = false;
 
+	private long fieldStatisticsPrintInterval = 10000;
+
 	private boolean utcTime = false;
+
+	CloseableHttpClient httpClient = null;
+
+	class Statistics {
+		private long sentEventCount = 0;
+		private long networkErrorCount = 0;
+		private long httpErrorCount = 0;
+
+		public long getSentEventCount() {
+			return sentEventCount;
+		}
+
+		public long getNetworkErrorCount() {
+			return networkErrorCount;
+		}
+
+		public long getHttpErrorCount() {
+			return httpErrorCount;
+		}
+
+		private long toMB(long byteValue) {
+			return byteValue / 1024 / 1024;
+		}
+
+		public void print() {
+			String statsString = "[LoganalyticsAppender] SentEventCount: " + sentEventCount + "; NetworkErrorCount: "
+					+ networkErrorCount + "; HttpErrorCount: " + httpErrorCount;
+			Runtime rt = Runtime.getRuntime();
+			long totalMem = toMB(rt.totalMemory());
+			long freeMem = toMB(rt.freeMemory());
+			statsString += "; TotalMemory [MB]: " + totalMem;
+			statsString += "; FreeMemory [MB]: " + freeMem;
+			statsString += "; MemoryUsage [MB]: " + new Long(totalMem - freeMem);
+			System.out.println(statsString);
+			addInfo(statsString);
+		}
+	}
+
+	class StatisticsPrinter implements Runnable {
+
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(fieldStatisticsPrintInterval);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				STATISTICS.print();
+			}
+		}
+	}
+
+	public final Statistics STATISTICS = new Statistics();
 
 	private final static Gson gson = new Gson();
 
@@ -80,6 +139,16 @@ public class LoganalyticsAppender extends AppenderBase<ILoggingEvent> {
 		if (this.logType == null) {
 			throw new IllegalArgumentException("Mandatory field: 'logType' not set");
 		}
+
+		PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+		// Increase max total connection to 200
+		cm.setMaxTotal(MAX_CONNECTIONS_TOTAL);
+		// Increase default max connection per route to 20
+		cm.setDefaultMaxPerRoute(MAX_CONNECTIONS_PER_ROUTE);
+
+		httpClient = HttpClients.custom().setConnectionManager(cm).build();
+
+		new Thread(new StatisticsPrinter()).start();
 	}
 
 	@Override
@@ -107,7 +176,7 @@ public class LoganalyticsAppender extends AppenderBase<ILoggingEvent> {
 
 		DateFormat df = null;
 		if (utcTime) {
-			df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'"); 
+			df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
 			df.setTimeZone(TimeZone.getTimeZone("UTC"));
 		} else {
 			df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -137,15 +206,15 @@ public class LoganalyticsAppender extends AppenderBase<ILoggingEvent> {
 
 		req.setEntity(new ByteArrayEntity(StringUtils.getBytesUtf8(json)));
 
-		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-			CloseableHttpResponse result = httpClient.execute(req);
+		CloseableHttpResponse result = httpClient.execute(req);
 
-			int status = result.getStatusLine().getStatusCode();
-			if (status / 100 != 2) {
-				String responseBody = null;
-				responseBody = EntityUtils.toString(result.getEntity());
-				addError("[LoganalyticsAppender] Error (status-code " + status + "): " + responseBody);
-			}
+		STATISTICS.sentEventCount++;
+
+		int status = result.getStatusLine().getStatusCode();
+		if (status / 100 != 2) {
+			String responseBody = null;
+			responseBody = EntityUtils.toString(result.getEntity());
+			addError("[LoganalyticsAppender] Error (status-code " + status + "): " + responseBody);
 		}
 	}
 
@@ -254,6 +323,14 @@ public class LoganalyticsAppender extends AppenderBase<ILoggingEvent> {
 
 	public void setFieldThreadName(boolean fieldThreadName) {
 		this.fieldThreadName = fieldThreadName;
+	}
+
+	public long getFieldStatisticsPrintInterval() {
+		return fieldStatisticsPrintInterval;
+	}
+
+	public void setFieldStatisticsPrintInterval(long fieldStatisticsPrintInterval) {
+		this.fieldStatisticsPrintInterval = fieldStatisticsPrintInterval;
 	}
 
 	public boolean isUtcTime() {
