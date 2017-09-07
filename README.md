@@ -19,7 +19,7 @@ Snapshot repository:
 
 	<repository>
 	    <snapshots>
-	        <enabled>true</enabled>
+	    <enabled>true</enabled>
 	    </snapshots>
 	    <id>sonartype-snapshots</id>
 	    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>

@@ -88,7 +88,7 @@ public class LoganalyticsAppender extends AppenderBase<ILoggingEvent> {
 			statsString += "; TotalMemory [MB]: " + totalMem;
 			statsString += "; FreeMemory [MB]: " + freeMem;
 			statsString += "; MemoryUsage [MB]: " + new Long(totalMem - freeMem);
-			System.out.println(statsString);
+
 			addInfo(statsString);
 		}
 	}
@@ -124,11 +124,11 @@ public class LoganalyticsAppender extends AppenderBase<ILoggingEvent> {
 		addInfo("[LoganalyticsAppender] workspaceId: " + this.workspaceId);
 		addInfo("[LoganalyticsAppender] logType: " + this.logType);
 		addInfo("[LoganalyticsAppender] apiVersion: " + this.apiVersion);
+		addInfo("[LoganalyticsAppender] utcTime: " + this.utcTime);
 		addInfo("[LoganalyticsAppender] fieldLogLevel: " + this.fieldLogLevel);
 		addInfo("[LoganalyticsAppender] fieldMessage: " + this.fieldMessage);
 		addInfo("[LoganalyticsAppender] fieldLoggerName: " + this.fieldLoggerName);
 		addInfo("[LoganalyticsAppender] fieldThreadName: " + this.fieldThreadName);
-		addInfo("[LoganalyticsAppender] utcTime: " + this.utcTime);
 
 		if (this.workspaceId == null) {
 			throw new IllegalArgumentException("Mandatory field: 'workspaceId' not set");
